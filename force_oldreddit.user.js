@@ -7,12 +7,19 @@
 // @run-at document-start
 // @grant none
 // ==/UserScript==
+function locationSegments(location) {
+    if (location === null || location === undefined) {
+        location = unsafeWindow.location;
+    }
+
+    return location.pathname.split('/').filter(e => e != '');
+}
 
 // TODO: this is hacky and the concerns are split across two modules, oldreddit.user.js (for the hot button) and this file...
 //   If we migrate this to a proper plugin, there is presumably a way around this.
 /// If we are on a subreddit overview site (i.e. old.reddit.com/r/linux/), we want to go to "new" immediately
 function forceSubredditNew1(location, stop) {
-    const segments = location.pathname.split('/').filter(e => e != "");
+    const segments = locationSegments(location);
     if (segments.length == 2 && segments[0] == "r") {
         if (stop) {
             unsafeWindow.stop();
@@ -30,14 +37,19 @@ function forceSubredditNewByDefault() {
 }
 
 function forceOldReddit() {
-    if (unsafeWindow.location.hostname === 'www.reddit.com' || unsafeWindow.location.hostname === 'reddit.com') {
-        let newLocation = new URL(unsafeWindow.location);
-        newLocation.hostname = 'old.reddit.com';
-        forceSubredditNew1(newLocation);
-        
-        unsafeWindow.stop();
-        unsafeWindow.location = newLocation;
-    }
+    if (!(unsafeWindow.location.hostname === 'www.reddit.com' || unsafeWindow.location.hostname === 'reddit.com'))
+        return;
+    // Don't break reddit.com/media
+    const segments = locationSegments();
+    if (segments.length >= 1 && segments[0] == 'media')
+        return;
+
+    let newLocation = new URL(unsafeWindow.location);
+    newLocation.hostname = 'old.reddit.com';
+    forceSubredditNew1(newLocation);
+
+    unsafeWindow.stop();
+    unsafeWindow.location = newLocation;
 }
 
 forceOldReddit();
