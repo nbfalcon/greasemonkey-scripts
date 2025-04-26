@@ -28,13 +28,13 @@ function executeQuery(selector, context) {
     }
 }
 
-function q(selector, then) {
-    const queryResult = executeQuery(selector);
+function q(selector, then, context) {
+    const queryResult = executeQuery(selector, context);
     queryResult.forEach(then);
 }
 
 function removeElements(selector, context) {
-    q(selector, e => e.remove());
+    q(selector, (e => e.remove()), context);
 }
 
 function cleanup() {
