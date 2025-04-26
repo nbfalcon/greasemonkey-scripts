@@ -28,23 +28,13 @@ function executeQuery(selector, context) {
     }
 }
 
-function q(selector, then) {
-    const queryResult = executeQuery(selector);
+function q(selector, then, context) {
+    const queryResult = executeQuery(selector, context);
     queryResult.forEach(then);
 }
 
 function removeElements(selector, context) {
-    q(selector, e => e.remove());
-}
-
-function cleanup() {
-    // Delete footer
-    const footerTr = Array.from(document.querySelectorAll('tr'));
-    const footer = footerTr.slice(footerTr.length - 2);
-    footer.forEach(e => e.remove());
-
-    // Disable "next" button
-    q('.morelink', (e) => e.setAttribute('style', 'pointer-events: none; color: #738491; user-select: none;'));
+    q(selector, e => e.remove(), context);
 }
 
 function submissions() {
@@ -74,6 +64,37 @@ function limitPosts(maxNumberOfPosts) {
     tooMany.forEach(deleteSubmission);
 }
 
-cleanup();
-removeHiringPosts();
-limitPosts(5);
+function cleanupCommon() {
+    // Delete footer
+    const footerTr = Array.from(document.querySelectorAll('tr'));
+    const footer = footerTr.slice(footerTr.length - 2);
+    footer.forEach(e => e.remove());
+}
+
+function disableLink(linkElement) {
+    linkElement.setAttribute('style', 'pointer-events: none; color: #738491; user-select: none;');
+}
+
+function cleanupMainpage() {
+    cleanupCommon();
+    // Disable "next" button
+    q('.morelink', disableLink);
+    // Disable top-left "Hacker News" image + logo (why would they be clickable? this just goes in circles)
+    q(['.hnname', 'td[bgcolor="#ff6600"] a:has(img)'], disableLink);
+
+    removeHiringPosts();
+    limitPosts(5);    
+}
+
+function cleanupItem() {
+    // /item?id=... (a submission discussion section)
+    cleanupCommon();
+
+    removeElements('tr:has(td[bgcolor="#ff6600"])');
+}
+
+if (unsafeWindow.location.pathname === '/item') {
+    cleanupItem();
+} else {
+    cleanupMainpage();
+}
