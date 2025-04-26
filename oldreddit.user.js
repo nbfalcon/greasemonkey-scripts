@@ -69,6 +69,13 @@ function cleanup() {
             tabmenu.remove();
         }
     });
+
+    // Fix "HOT" link to redirect to old.reddit.com/r/hot, so that the force_oldreddit.user.js script does not force us back to new
+    q({type:'xpath', query: "//ul[contains(@class, 'tabmenu')]//a[contains(translate(., 'HOT', 'hot'), 'hot')]"}, (a) => {
+        if (!a.getAttribute('href').endsWith('hot')) {
+            a.setAttribute('href', a.getAttribute('href') + "hot/");
+        }
+    });
 }
 
 function limitPosts(maxNumberOfPosts) {
