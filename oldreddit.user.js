@@ -37,6 +37,10 @@ function removeElements(selector, context) {
     q(selector, (e => e.remove()), context);
 }
 
+function disableLink(linkElement) {
+    linkElement.setAttribute('style', 'pointer-events: none; color: #738491; user-select: none;');
+}
+
 function cleanup() {
     // Cleanup sidebar
     const sidebar = document.querySelector('div.side');
@@ -46,7 +50,9 @@ function cleanup() {
     removeElements('div.spacer:empty', sidebar); // These were already there.
 
     // Don't doomscroll through subreddits in any case ("next" button is still better than autoscrolling, though)
-    q(['.next-button a', '#header-img-a', '.redditname a'], (e) => e.setAttribute('style', 'pointer-events: none; color: #738491; user-select: none;'));
+    q(['.next-button a', '.redditname a'], disableLink);
+    // Link to (old.)?.reddit.com
+    q(['#header-img-a', '#header-img'], disableLink);
 
     // I don't need the footer (Copyright, EULA, ...)
     removeElements('.footer-parent');
