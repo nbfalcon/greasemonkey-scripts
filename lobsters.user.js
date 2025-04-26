@@ -37,9 +37,22 @@ function removeElements(selector, context) {
     q(selector, e => e.remove());
 }
 
+function disableLink(linkElement) {
+    linkElement.setAttribute('style', 'pointer-events: none; color: #738491; user-select: none;');
+}
+function disableLink2(linkElement) {
+    linkElement.setAttribute('style', 'pointer-events: none; user-select: none;' + linkElement.getAttribute('style'));
+}
+
 function cleanup() {
     // Disable "next" button
-    q('.morelink', (e) => e.setAttribute('style', 'pointer-events: none; color: #738491; user-select: none;'));
+    q('.morelink', disableLink);
+    q('#logo', disableLink2);
+
+    if (unsafeWindow.location.pathname.startsWith('/s/')) {
+        // For submissions, we also don't want a title bar
+        removeElements('#nav');
+    }
 }
 
 function submissions() {
